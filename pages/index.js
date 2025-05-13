@@ -4,9 +4,10 @@ import { Button } from "../components/ui/button";
 
 export default function RibbonBoard() {
   const [imageURL, setImageURL] = useState(null);
-  const [speed, setSpeed] = useState(30);
+  const [speed, setSpeed] = useState(60); // slower default
   const [direction, setDirection] = useState("left");
   const [resolution, setResolution] = useState(4416);
+  const [isExporting, setIsExporting] = useState(false);
   const imageRef = useRef(null);
 
   useEffect(() => {
@@ -23,6 +24,42 @@ export default function RibbonBoard() {
         setImageURL(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!imageURL) return alert("Upload an image first!");
+    setIsExporting(true);
+
+    try {
+      const response = await fetch("https://ribbon-export-api.onrender.com/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          base64Image: imageURL,
+          width: resolution,
+          height: 40,
+          duration: 15,
+          filename: "ribbon-output.mp4",
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Export failed. Try again.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ribbon-output.mp4";
+      a.click();
+    } catch (err) {
+      console.error("Export error:", err);
+      alert("An error occurred during export.");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -43,7 +80,7 @@ export default function RibbonBoard() {
             <input
               type="range"
               min="5"
-              max="60"
+              max="120"
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
               className="accent-blue-500"
@@ -75,6 +112,10 @@ export default function RibbonBoard() {
               <option value={20208}>Upper Full Wrap (20208x40)</option>
             </select>
           </div>
+
+          <Button onClick={handleExport} disabled={isExporting}>
+            {isExporting ? "Exporting..." : "Download .mp4"}
+          </Button>
         </div>
       </div>
 
@@ -83,7 +124,7 @@ export default function RibbonBoard() {
           className="flex animate-scroll"
           style={{
             animation: `scroll var(--scroll-speed) linear infinite`,
-            animationDirection: `var(--scroll-direction)`
+            animationDirection: `var(--scroll-direction)`,
           }}
         >
           {imageURL && (
