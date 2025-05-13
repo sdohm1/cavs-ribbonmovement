@@ -6,6 +6,7 @@ export default function RibbonBoard() {
   const [imageURL, setImageURL] = useState(null);
   const [speed, setSpeed] = useState(30);
   const [direction, setDirection] = useState("left");
+  const [resolution, setResolution] = useState(4416);
   const imageRef = useRef(null);
 
   useEffect(() => {
@@ -26,26 +27,58 @@ export default function RibbonBoard() {
   };
 
   return (
-    <div className="p-6 space-y-4 bg-black min-h-screen text-white">
-      <h1 className="text-2xl font-bold">Ribbon Board Motion Preview</h1>
-      <Input type="file" accept="image/*" onChange={handleUpload} />
-      <div className="flex gap-4 items-center">
-        <label>Speed:</label>
-        <input
-          type="range"
-          min="5"
-          max="60"
-          value={speed}
-          onChange={(e) => setSpeed(Number(e.target.value))}
-        />
-        <span>{speed}s</span>
-        <label>Direction:</label>
-        <select value={direction} onChange={(e) => setDirection(e.target.value)}>
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-        </select>
+    <div className="p-6 space-y-6 bg-black min-h-screen text-white font-sans">
+      <div className="flex items-center justify-center">
+        <img src="/ribbon_logo.png" alt="Logo" className="h-12" />
       </div>
-      <div className="overflow-hidden border border-gray-600" style={{ height: 40 }}>
+
+      <h1 className="text-3xl font-bold text-center">Ribbon Board Motion Preview</h1>
+
+      <div className="space-y-4">
+        <Input type="file" accept="image/*" onChange={handleUpload} />
+
+        <div className="flex flex-wrap gap-6 items-center">
+          <div className="flex items-center gap-2">
+            <label>Speed:</label>
+            <input
+              type="range"
+              min="5"
+              max="60"
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="accent-blue-500"
+            />
+            <span>{speed}s</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label>Direction:</label>
+            <select
+              value={direction}
+              onChange={(e) => setDirection(e.target.value)}
+              className="bg-gray-800 border border-gray-600 px-2 py-1 rounded"
+            >
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label>Ribbon:</label>
+            <select
+              value={resolution}
+              onChange={(e) => setResolution(Number(e.target.value))}
+              className="bg-gray-800 border border-gray-600 px-2 py-1 rounded"
+            >
+              <option value={4416}>Lower (4416x40)</option>
+              <option value={10104}>Upper (10104x40)</option>
+              <option value={20208}>Upper Full Wrap (20208x40)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-hidden border border-gray-600 mx-auto" style={{ height: 40, width: resolution }}>
         <div
           className="flex animate-scroll"
           style={{
@@ -61,6 +94,7 @@ export default function RibbonBoard() {
           )}
         </div>
       </div>
+
       <style jsx global>{`
         @keyframes scroll {
           from {
